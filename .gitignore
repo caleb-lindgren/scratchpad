@@ -1,0 +1,10 @@
+*.egg-info/
+.ipynb_checkpoints/
+__pychache__/
+*.pyc
+dist/
+build/
+.DS_Store
+
+# Exclude data files, since they're stored remotely
+step*/*
