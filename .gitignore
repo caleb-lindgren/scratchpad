@@ -8,3 +8,4 @@ build/
 
 # Exclude data files, since they're stored remotely
 checkpoints*/
+slurm-*
