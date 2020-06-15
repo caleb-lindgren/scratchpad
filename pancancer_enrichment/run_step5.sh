@@ -8,4 +8,4 @@
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
 
-jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute pancancer_enrichment_step_1.ipynb
+jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute 5_find_enriched_pathways_gseapy.ipynb
