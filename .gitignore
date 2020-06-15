@@ -6,6 +6,6 @@ dist/
 build/
 .DS_Store
 
-# Exclude data files, since they're stored remotely
 checkpoints*/
 slurm-*
+pancancer_enrichment/step4_outputs/*
