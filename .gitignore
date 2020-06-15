@@ -6,6 +6,6 @@ dist/
 build/
 .DS_Store
 
-checkpoints*/
+step1_checkpoints*/
 slurm-*
 pancancer_enrichment/step4_outputs/*
