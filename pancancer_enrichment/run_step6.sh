@@ -9,4 +9,4 @@
 #SBATCH --mail-type=FAIL
 #SBATCH --qos=test
 
-jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute 5_find_enriched_pathways_gseapy_reactome.ipynb
+jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute 6_find_enriched_pathways_gseapy_kegg.ipynb
