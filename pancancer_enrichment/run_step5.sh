@@ -7,6 +7,5 @@
 #SBATCH --mail-user=calebmlindgren@gmail.com   # email address
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
-#SBATCH --qos=test
 
 jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute 5_find_enriched_pathways_gseapy_reactome.ipynb
