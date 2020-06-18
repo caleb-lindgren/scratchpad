@@ -4,9 +4,10 @@
 #SBATCH --ntasks=1   # number of processor cores (i.e. tasks)
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --mem-per-cpu=1048576M   # memory per CPU core
+#SBATCH --qos=standby
 #SBATCH --mail-user=calebmlindgren@gmail.com   # email address
 #SBATCH --mail-type=BEGIN
 #SBATCH --mail-type=END
 #SBATCH --mail-type=FAIL
 
-jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute 9_gseapy_prerank.ipynb
+jupyter nbconvert --ExecutePreprocessor.timeout=None --to notebook --inplace --execute 11_gseapy_prerank.ipynb
