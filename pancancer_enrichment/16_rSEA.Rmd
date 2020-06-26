@@ -1,0 +1,67 @@
+---
+title: "Using rSEA to analyze pathway enrichment for CPTAC data"
+author: "Caleb Lindgren"
+---
+
+# Using rSEA to analyze pathway enrichment for CPTAC data
+
+## Setup
+```{r, message=FALSE}
+library(tidyverse)
+library(rSEA)
+
+TIME_START = format(Sys.time(), "%Y%m%d_%H%M%S")
+
+STEP01_DIR <- "step01_outputs"
+STEP01_FILE <- "tumor_change_20200529_195104_10000_perm.tsv"
+STEP01_FILE_PATH <- file.path(STEP01_DIR, STEP01_FILE)
+
+PATHWAYS_DIR <- "gene_set_libraries"
+PATHWAYS_FILE <- "Reactome_2020.gmt"
+PATHWAYS_FILE_PATH <- file.path(PATHWAYS_DIR, PATHWAYS_FILE)
+
+STEP16_DIR <- "step16_outputs"
+STEP16_FILE <- paste("enrichment_rsea_", TIME_START, ".tsv", sep = "")
+STEP16_FILE_PATH <- file.path(STEP16_DIR, STEP16_FILE)
+
+# Create the directory if it doesn't already exist
+dir.create(STEP16_DIR, showWarnings = FALSE)
+```
+
+## Step 1: Load expression data and divide by cancer type
+
+We will use a list of genes, with permutation-based *p*-values for differential expression between tumor and normal, that we generated previously.
+
+```{r, message=FALSE, warning=FALSE}
+all_expr_data <- read_tsv(STEP01_FILE_PATH)
+cancer_types <- distinct(all_expr_data, cancer_type)$cancer_type
+split_expr_data <- lapply(cancer_types, function(x) filter(all_expr_data, cancer_type == x))
+names(split_expr_data) <- cancer_types
+```
+
+## Step 2: Load pathway lists
+
+We have the Reactome pathways stored as a .gmt file. We will read this in as a list of lists.
+
+```{r}
+pathways <- PATHWAYS_FILE_PATH %>%
+  readLines() %>% # Read in each line of the file as a string
+  sapply(strsplit, split = "\t") %>% # Split each line on the tab character
+  sapply(function(x) x[-1]) # Cut out the pathway names
+
+pathway_ids <- sapply(pathways, function(x) x[[1]]) # Save the pathway ids
+pathways <- sapply(pathways, function(x) x[-1]) # Cut out the pathway ids from the lists
+names(pathways) <- pathway_ids # Set the pathway ids as the names
+```
+
+## Step 3: Run rSEA and save the results
+```{r}
+results <- lapply(split_expr_data, function(x) SEA(x$P_val, x$protein_str, pathlist = pathways))
+names(results) <- cancer_types
+
+results <- cancer_types %>%
+  lapply(function(x) results[[x]] %>% add_column(cancer_type = x)) %>% # Add each table's cancer type as a column
+  bind_rows() # Combine all the tables into one table
+
+write_tsv(results, STEP16_FILE_PATH)
+```
