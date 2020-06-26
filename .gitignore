@@ -9,4 +9,5 @@ build/
 step?_checkpoints*/
 step??_checkpoints*/
 slurm-*
+altair-data-*
 pancancer_enrichment/step4_outputs/*

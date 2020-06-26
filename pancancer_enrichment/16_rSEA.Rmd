@@ -11,6 +11,7 @@ library(tidyverse)
 library(rSEA)
 
 TIME_START = format(Sys.time(), "%Y%m%d_%H%M%S")
+THRESHOLDS = seq(0.1, 0.9, by = 0.1) 
 
 STEP01_DIR <- "step01_outputs"
 STEP01_FILE <- "tumor_change_20200529_195104_10000_perm.tsv"
@@ -21,8 +22,6 @@ PATHWAYS_FILE <- "Reactome_2020.gmt"
 PATHWAYS_FILE_PATH <- file.path(PATHWAYS_DIR, PATHWAYS_FILE)
 
 STEP16_DIR <- "step16_outputs"
-STEP16_FILE <- paste("enrichment_rsea_", TIME_START, ".tsv", sep = "")
-STEP16_FILE_PATH <- file.path(STEP16_DIR, STEP16_FILE)
 
 # Create the directory if it doesn't already exist
 dir.create(STEP16_DIR, showWarnings = FALSE)
@@ -56,12 +55,23 @@ names(pathways) <- pathway_ids # Set the pathway ids as the names
 
 ## Step 3: Run rSEA and save the results
 ```{r}
-results <- lapply(split_expr_data, function(x) SEA(x$P_val, x$protein_str, pathlist = pathways))
-names(results) <- cancer_types
-
-results <- cancer_types %>%
-  lapply(function(x) results[[x]] %>% add_column(cancer_type = x)) %>% # Add each table's cancer type as a column
-  bind_rows() # Combine all the tables into one table
-
-write_tsv(results, STEP16_FILE_PATH)
+for (threshold in THRESHOLDS) {
+  results <- lapply(split_expr_data, function(x) SEA(
+    pvalue = x$P_val,
+    featureIDs = x$protein_str,
+    pathlist = pathways,
+    thresh = threshold))
+  
+  names(results) <- cancer_types
+  
+  results <- cancer_types %>%
+    lapply(function(x) results[[x]] %>% add_column(cancer_type = x)) %>% # Add each table's cancer type as a column
+    bind_rows() # Combine all the tables into one table
+  
+  STEP16_FILE_PATH <- file.path(
+    STEP16_DIR,
+    paste("enrichment_rsea_", TIME_START, "_thresh_", threshold, ".tsv", sep = ""))
+  
+  write_tsv(results, STEP16_FILE_PATH)
+}
 ```
