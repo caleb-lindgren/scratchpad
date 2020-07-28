@@ -40,7 +40,7 @@ names(split_expr_data) <- cancer_types
 
 ## Step 2: Load pathway lists
 
-We have the Reactome pathways stored as a .gmt file. We will read this in as a list of lists.
+We have the Reactome pathways stored as a .gmt file. We will read this in as a list of lists. GMT file was downloaded from https://reactome.org/download/current/ReactomePathways.gmt.zip
 
 ```{r}
 pathways <- PATHWAYS_FILE_PATH %>%
