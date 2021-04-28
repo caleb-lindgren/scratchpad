@@ -4,9 +4,10 @@ import pandas as pd
 
 class Timesheet:
 
-    def __init__(self, timesheet_path="timesheet.tsv"):
+    def __init__(self):
 
-        self._timesheet_path = os.path.abspath(timesheet_path)
+        path_here = os.path.abspath(os.path.dirname(__file__))
+        self._timesheet_path = os.path.join(path_here, "timesheet.tsv")
 
         if os.path.isfile(self._timesheet_path):
             self._timesheet = pd.read_csv(self._timesheet_path, sep="\t", parse_dates=["time"])
@@ -73,7 +74,6 @@ class Timesheet:
 
     def _save(self):
         self._timesheet.to_csv(self._timesheet_path, sep="\t", index=False)
-        print(f"Timesheet saved to '{self._timesheet_path}'.")
 
     def punch(self, io, time=pd.Timestamp.now()):
 
@@ -88,18 +88,25 @@ class Timesheet:
 
         self._timesheet = tmp.sort_values(by="time").reset_index(drop=True)
         self._check_matches()
-        print(self._summarize_all())
+        print(self._summarize_all().iloc[-1])
         self._save()
+
+    def check(self):
+        print(self._summarize_all().iloc[-1])
 
 if len(sys.argv) < 2:
     raise ValueError("Insufficient number of arguments passed. Please specify 'in' or 'out'.")
 
 if len(sys.argv) in (2, 7):
 
-    if sys.argv[1] in ("in", "out"):
+    if sys.argv[1] in ("in", "out", "check"):
         ts = Timesheet()
 
-        if len(sys.argv) == 2:
+        if sys.argv[1] == "check":
+            if len(sys.argv) > 2:
+                print("Note: Ignoring extra args after 'check'")
+            ts.check()
+        elif len(sys.argv) == 2:
             ts.punch(io=sys.argv[1])
         else:
             punch_time_list = [int(i) for i in sys.argv[2:]]
