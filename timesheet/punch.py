@@ -36,7 +36,7 @@ class Timesheet:
         # Sum by week
         net = (outs["time"] - ins["time"]).\
         reset_index().\
-        groupby([pd.Grouper(key="punch", freq="W-MON")])["time"].\
+        groupby([pd.Grouper(key="punch", freq="W-SUN")])["time"].\
         sum().\
         apply(self._fmt_timedelta)
 
