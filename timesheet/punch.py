@@ -92,6 +92,7 @@ class Timesheet:
         self._save()
 
     def check(self):
+        #print(self._summarize_all())
         print(self._summarize_all().iloc[-1])
 
 if len(sys.argv) < 2:
