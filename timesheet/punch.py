@@ -15,10 +15,7 @@ class Timesheet:
             print(f"Existing timesheet not found. Creating new timesheet at '{self._timesheet_path}'.")
             self._timesheet = pd.DataFrame()
 
-    def _summarize_week(self):
-        return self._timesheet
-
-    def _summarize_all(self):
+    def _get_weeks_table(self):
 
         ins, outs = self._get_ins_outs()
 
@@ -37,7 +34,13 @@ class Timesheet:
         net = (outs["time"] - ins["time"]).\
         reset_index().\
         groupby([pd.Grouper(key="punch", freq="W-SUN")])["time"].\
-        sum().\
+        sum()
+
+        return net
+
+    def _summarize_weeks(self):
+
+        net = self._get_weeks_table().\
         apply(self._fmt_timedelta)
 
         # Offset week
@@ -88,25 +91,38 @@ class Timesheet:
 
         self._timesheet = tmp.sort_values(by="time").reset_index(drop=True)
         self._check_matches()
-        print(self._summarize_all().iloc[-1])
+        self.check_current()
         self._save()
 
-    def check(self):
-        #print(self._summarize_all())
-        print(self._summarize_all().iloc[-1])
+    def check_current(self):
+        print(self._summarize_weeks().iloc[-1])
+
+    def summarize_all(self):
+        weeks = self._summarize_weeks()
+        weeks.index.name = None
+        print(weeks, end="\r")
+        print(" " * 30)
+
+        net = self._get_weeks_table().sum()
+        print(f"Total: {self._fmt_timedelta(net)}")
+
 
 if len(sys.argv) < 2:
     raise ValueError("Insufficient number of arguments passed. Please specify 'in' or 'out'.")
 
 if len(sys.argv) in (2, 7):
 
-    if sys.argv[1] in ("in", "out", "check"):
+    if sys.argv[1] in ("in", "out", "check", "summarize"):
         ts = Timesheet()
 
         if sys.argv[1] == "check":
             if len(sys.argv) > 2:
                 print("Note: Ignoring extra args after 'check'")
-            ts.check()
+            ts.check_current()
+        elif sys.argv[1] == "summarize":
+            if len(sys.argv) > 2:
+                print("Note: Ignoring extra args after 'summarize'")
+            ts.summarize_all()
         elif len(sys.argv) == 2:
             ts.punch(io=sys.argv[1])
         else:
