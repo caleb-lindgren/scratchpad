@@ -110,7 +110,7 @@ class Timesheet:
 if len(sys.argv) < 2:
     raise ValueError("Insufficient number of arguments passed. Please specify 'in' or 'out'.")
 
-if len(sys.argv) in (2, 7):
+if len(sys.argv) in (2, 4, 7):
 
     if sys.argv[1] in ("in", "out", "check", "summarize"):
         ts = Timesheet()
@@ -125,6 +125,10 @@ if len(sys.argv) in (2, 7):
             ts.summarize_all()
         elif len(sys.argv) == 2:
             ts.punch(io=sys.argv[1])
+        elif len(sys.argv) == 4:
+            now = pd.Timestamp.now()
+            time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[2:]])
+            ts.punch(io=sys.argv[1], time=time)        
         else:
             punch_time_list = [int(i) for i in sys.argv[2:]]
             time = pd.Timestamp(*punch_time_list)
