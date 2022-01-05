@@ -4,10 +4,10 @@ import pandas as pd
 
 class Timesheet:
 
-    def __init__(self):
+    def __init__(self, sheet):
 
         path_here = os.path.abspath(os.path.dirname(__file__))
-        self._timesheet_path = os.path.join(path_here, "timesheet.tsv")
+        self._timesheet_path = os.path.join(path_here, sheet)
 
         if os.path.isfile(self._timesheet_path):
             self._timesheet = pd.read_csv(self._timesheet_path, sep="\t", parse_dates=["time"])
@@ -107,33 +107,36 @@ class Timesheet:
         print(f"Total: {self._fmt_timedelta(net)}")
 
 
-if len(sys.argv) < 2:
-    raise ValueError("Insufficient number of arguments passed. Please specify 'in' or 'out'.")
+if len(sys.argv) < 3:
+    raise ValueError("Insufficient number of arguments passed. Please specify 'in' or 'out' and 'b' or 'p'.")
 
-if len(sys.argv) in (2, 4, 7):
+if len(sys.argv) in (3, 5, 8):
 
     if sys.argv[1] in ("in", "out", "check", "summarize"):
-        ts = Timesheet()
+        if sys.argv[-1] in ("b", "p"):
+            ts = Timesheet("bundy202201.tsv" if sys.argv[-1] == "b" else "payne202201.tsv")
 
-        if sys.argv[1] == "check":
-            if len(sys.argv) > 2:
-                print("Note: Ignoring extra args after 'check'")
-            ts.check_current()
-        elif sys.argv[1] == "summarize":
-            if len(sys.argv) > 2:
-                print("Note: Ignoring extra args after 'summarize'")
-            ts.summarize_all()
-        elif len(sys.argv) == 2:
-            ts.punch(io=sys.argv[1])
-        elif len(sys.argv) == 4:
-            now = pd.Timestamp.now()
-            time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[2:]])
-            ts.punch(io=sys.argv[1], time=time)        
+            if sys.argv[1] == "check":
+                if len(sys.argv) > 3:
+                    print("Note: Ignoring extra args after 'check'")
+                ts.check_current()
+            elif sys.argv[1] == "summarize":
+                if len(sys.argv) > 3:
+                    print("Note: Ignoring extra args after 'summarize'")
+                ts.summarize_all()
+            elif len(sys.argv) == 3:
+                ts.punch(io=sys.argv[1])
+            elif len(sys.argv) == 5:
+                now = pd.Timestamp.now()
+                time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[2:]])
+                ts.punch(io=sys.argv[1], time=time)        
+            else:
+                punch_time_list = [int(i) for i in sys.argv[2:-1]]
+                time = pd.Timestamp(*punch_time_list)
+                ts.punch(io=sys.argv[1], time=time)
         else:
-            punch_time_list = [int(i) for i in sys.argv[2:]]
-            time = pd.Timestamp(*punch_time_list)
-            ts.punch(io=sys.argv[1], time=time)
+            raise ValueError(f"Invalid sheet. You passed '{sys.argv[-1]}'. Please pass 'b' for Bundy Lab or 'p' for Payne Lab.")
     else:
         raise ValueError(f"Invalid punch type. You passed '{sys.argv[1]}'. Please pass 'in' or 'out'.")
 else:
-    raise ValueError(f"Wrong number of arguments. You passed {len(sys.argv) - 1} arguments. Pass either one ('in' or 'out') or six ('in' or 'out' and year, month, day, 24 hour, minute).")
+    raise ValueError(f"Wrong number of arguments. You passed {len(sys.argv) - 1} arguments. Pass either two ('in' or 'out' and 'b' or 'p') or six ('in' or 'out' and year, month, day, 24 hour, minute) and 'b' or 'p'.")
