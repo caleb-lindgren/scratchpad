@@ -128,7 +128,7 @@ if len(sys.argv) in (3, 5, 8):
                 ts.punch(io=sys.argv[1])
             elif len(sys.argv) == 5:
                 now = pd.Timestamp.now()
-                time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[2:]])
+                time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[2:-1]])
                 ts.punch(io=sys.argv[1], time=time)        
             else:
                 punch_time_list = [int(i) for i in sys.argv[2:-1]]
