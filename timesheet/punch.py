@@ -4,16 +4,23 @@ import pandas as pd
 
 class Timesheet:
 
-    def __init__(self, sheet):
+    def __init__(self, timesheet_path):
 
-        path_here = os.path.abspath(os.path.dirname(__file__))
-        self._timesheet_path = os.path.join(path_here, sheet)
+        self._timesheet_path = timesheet_path
 
         if os.path.isfile(self._timesheet_path):
             self._timesheet = pd.read_csv(self._timesheet_path, sep="\t", parse_dates=["time"])
         else:
-            print(f"Existing timesheet not found. Creating new timesheet at '{self._timesheet_path}'.")
-            self._timesheet = pd.DataFrame()
+            resp = input(f"Existing timesheet not found. Did you mistype the path? If not, and you would like to create a new timesheet at '{self._timesheet_path}', enter 'y'. Otherwise enter 'n': ")
+
+            while resp not in ("y", "n"):
+                resp = input("Invalid response. Please enter 'y' or 'n': ")
+
+            if resp == "y":
+                print(f"Creating new timesheet at '{self._timesheet_path}'.")
+                self._timesheet = pd.DataFrame()
+            elif resp == "n":
+                sys.exit()
 
     def _get_weeks_table(self):
 
@@ -81,8 +88,8 @@ class Timesheet:
     def punch(self, io, time=pd.Timestamp.now()):
 
         tmp = self._timesheet.append({
+            "io": io,
             "time": time,
-            "io": io
         },
         ignore_index=True)
 
@@ -108,35 +115,33 @@ class Timesheet:
 
 
 if len(sys.argv) < 3:
-    raise ValueError("Insufficient number of arguments passed. Please specify 'in' or 'out' and 'b' or 'p'.")
+    raise ValueError("Insufficient number of arguments passed. Please specify 'in', 'out', 'check', or 'summarize' and a path to a timesheet tsv file.")
 
 if len(sys.argv) in (3, 5, 8):
 
     if sys.argv[1] in ("in", "out", "check", "summarize"):
-        if sys.argv[-1] in ("b", "p"):
-            ts = Timesheet("bundy202201.tsv" if sys.argv[-1] == "b" else "payne202201.tsv")
 
-            if sys.argv[1] == "check":
-                if len(sys.argv) > 3:
-                    print("Note: Ignoring extra args after 'check'")
-                ts.check_current()
-            elif sys.argv[1] == "summarize":
-                if len(sys.argv) > 3:
-                    print("Note: Ignoring extra args after 'summarize'")
-                ts.summarize_all()
-            elif len(sys.argv) == 3:
-                ts.punch(io=sys.argv[1])
-            elif len(sys.argv) == 5:
-                now = pd.Timestamp.now()
-                time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[2:-1]])
-                ts.punch(io=sys.argv[1], time=time)        
-            else:
-                punch_time_list = [int(i) for i in sys.argv[2:-1]]
-                time = pd.Timestamp(*punch_time_list)
-                ts.punch(io=sys.argv[1], time=time)
+        ts = Timesheet(sys.argv[2])
+
+        if sys.argv[1] == "check":
+            if len(sys.argv) > 3:
+                print("Note: Ignoring extra args after 'check'")
+            ts.check_current()
+        elif sys.argv[1] == "summarize":
+            if len(sys.argv) > 3:
+                print("Note: Ignoring extra args after 'summarize'")
+            ts.summarize_all()
+        elif len(sys.argv) == 3:
+            ts.punch(io=sys.argv[1])
+        elif len(sys.argv) == 5:
+            now = pd.Timestamp.now()
+            time = pd.Timestamp(now.year, now.month, now.day, *[int(i) for i in sys.argv[3:]])
+            ts.punch(io=sys.argv[1], time=time)        
         else:
-            raise ValueError(f"Invalid sheet. You passed '{sys.argv[-1]}'. Please pass 'b' for Bundy Lab or 'p' for Payne Lab.")
+            punch_time_list = [int(i) for i in sys.argv[3:]]
+            time = pd.Timestamp(*punch_time_list)
+            ts.punch(io=sys.argv[1], time=time)
     else:
-        raise ValueError(f"Invalid punch type. You passed '{sys.argv[1]}'. Please pass 'in' or 'out'.")
+        raise ValueError(f"Invalid punch type. You passed '{sys.argv[1]}'. Please pass 'in', 'out', 'check', or 'summarize'.")
 else:
-    raise ValueError(f"Wrong number of arguments. You passed {len(sys.argv) - 1} arguments. Pass either two ('in' or 'out' and 'b' or 'p') or six ('in' or 'out' and year, month, day, 24 hour, minute) and 'b' or 'p'.")
+    raise ValueError(f"Wrong number of arguments. You passed {len(sys.argv) - 1} arguments. Pass either two ('in', 'out', 'check', or 'summarize' and a path to a timesheet tsv file) or six ('in' or 'out', a path to a timesheet tsv file, and year, month, day, 24 hour, minute).")
