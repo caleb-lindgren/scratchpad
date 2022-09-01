@@ -28,7 +28,10 @@ class Timesheet:
 
         # If we're currently clocked in, summarize time worked until now
         if self._timesheet.iloc[-1, 0] == "in":
-            outs = outs.append({"io": "out", "time": pd.Timestamp.now()}, ignore_index=True)
+            outs = pd.concat([outs, pd.DataFrame({
+                "io": ["out"],
+                "time": [pd.Timestamp.now()],
+            })], ignore_index=True)
 
         # Index by punch in time
         ins.index = ins["time"]
@@ -87,10 +90,10 @@ class Timesheet:
 
     def punch(self, io, time=pd.Timestamp.now()):
 
-        tmp = self._timesheet.append({
-            "io": io,
-            "time": time,
-        },
+        tmp = pd.concat([self._timesheet, pd.DataFrame({
+            "io": [io],
+            "time": [time],
+        })],
         ignore_index=True)
 
         if tmp.duplicated().any():
