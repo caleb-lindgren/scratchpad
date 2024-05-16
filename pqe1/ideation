@@ -1,0 +1,156 @@
+What are health problems where we could address a root cause, not just ameliorate symptoms? And/or where prevention is not enough?
+- Tissue regrowth (developmental biology)
+- Autoimmune diseases (still don't fully understand how they work)
+- Cancer
+- Infections (AMR, viruses, parasites) (cost also a barrier)
+
+Topics
+- Cell signalling
+
+Cool science, and what their goal is
+- DNA typewriter
+- Paulsson lab
+- Megason lab
+- Sorger lab
+- Broad
+- Microbiome people
+- Elowitz lab
+- Gygi lab
+- Baker lab
+
+Papers and talks
+- Systems biology
+    - An operational view of intercellular signalling pathways. Antebi, Nandagopal, and Elowitz, 2017.
+        - Conclusion section: call to study cell signalling from a signal processing point of view, using dynamic (i.e., time series) single cell analysis, dynamic and quantitative control of inputs, isolation via reconstitution, and mathematical modeling to understand the regimes of possible behavior based on what is known about the system.
+
+20 Dec thoughts
+- Modeling: What models are interesting? When do bifurcations/phases transitions arise? Is there anything like that here?
+- Look into OEB labs?
+- What would I do differently right now if I were headed for industry rather than academia? Maybe pursuing industry right now wouldn't hurt my chances at switching to academia later, while pursuing industry might hurt my chances at academia...
+- From Johan's stories at lunch
+    - ARPA-H/DARPA: only care if it can be commercialized so it can be brought into hospitals and impact real people
+    - What is the point of academia? Are we just the hedge part of the bet hedging?
+    - Should I go the industry route in order to have a stable job and actually make an impact for people?
+        - Try a lab at the Broad? Gygi lab?
+            - Email Stephen to coordinate
+        - Is academia bound to always be grasping at straws for someone to give them money?
+    - His experience at HMS: They're always trying to get more of a cut out of his grants
+        - Before it's submitted, promise lots of support and funding for overhead/admin/remodeling etc., then retract those promises after it's received
+        - Only time he has leverage is when he has a good offer from somewhere else
+        - Once you have a big grant, it's hard to get internal grants--people will assume you just have it made, when your costs have scaled up too with a bigger lab
+    - ARPA-H grant has a very detailed schedule, but because of Harvard and other people being slow people haven't even got money yet; and there's a detailed list of all these milestones to meet. How realistic is that?
+        - And finding out afterwards that equipment will be more expensive than thought, etc. so have to readjust budget
+    - Patenting
+        - Harvard doesn't like to patent, because getting a return is hard
+            - If a company licenses it, if it's successful they'll find a different way to do it to avoid the patent, or if it fails they owe you nothing
+            - So their new strategy is to only license to startups and to bargain for equity, as well as royalties and overhead. But they're driving such a hard bargain that no one wants to work with them
+
+Develop list of scientific interests and topics that would play to personal strengths/expertise. Read and cite 2-5 papers for each topic and note what you find as surprising/interesting. Refine to topics you can address purely computationally. By the end of this unit, you should have rationale paragraph, hypothesis, and loose aims.
+
+- Things to read to increase my knowledge
+    - Essential Cell Biology by Bruce Alberts, chs. 15-18 and 20: https://id.lib.harvard.edu/alma/99153883289603941/catalog (5th ed.)
+        - See also Molecular Biology of the Cell, https://id.lib.harvard.edu/alma/99153883289603941/catalog (7th ed.)
+
+- Chasing New Horizons
+    - Had a goal and stuck to it
+    - Built a strong community around that goal, rather than just pursuing it himself, and that's why it succeeded
+    - Didn't get discouraged by the NASA funding structure, and didn't get corrupted by it either
+        - Didn't become a businessman or politician who didn't care about what actually was done
+        - I don't want to become someone who does science for the money. I want to do it for the discovery.
+    - They did high quality work. They had to, since they were sending it to space; but it seemed like they weren't ones to do a slapstick job anyways.
+    - He first became really knowledgable in a particular field, and thus was able to do high-quality work in that field
+        - My knowledge doesn't have to come from classes. Math basics and such are needed; but after that, it's reading
+
+- Discoveries
+    - Tools
+        - iPSC
+        - CRISPR-Cas9
+        - Next-generation and nanopore sequencing
+        - Single cell imaging, DNA and RNA sequencing, and proteomics
+        - Organoids
+    - Truths
+        - The central dogma
+        - There's other things besides the central dogma
+    - Products
+        - Oscillators (How useful are they though?)
+        - Having cells make proteins for you
+- Questions
+    - What are problems that wouldn't be solved by eating healthier food and exercising more?
+        - Prevention is better than treatment, so I'm interested in problems we don't know how to prevent
+    - How to prevent/treat AMR?
+        - Persister cells: how do they balance between safety and growth? Parllels Mariya's RNAseq data.
+    - How do you maintain a healthy gut microbiome? (Founding curiosity: we have a microbiome and it's big!)
+        - What is a healthy gut microbiome?
+        - What can perturb it?
+    - How do embryos develop?
+        - Can we repair damaged structures/cells?
+    - How and why do inflammatory diseases develop?
+        - Immune cell activation patterns
+        - Effects from microbiome?
+    - Can we use living things to reduce pollution?
+    - How do you make proteins to do what you want?
+        - Rational design
+        - Machine learning
+        - Screens
+        - Directed evolution
+- Goals
+    - Understand something
+    - Build something
+    - Prevent something
+        - Or if that's not possible, undo or reverse it
+- Pitfalls
+    - Modeling: Having so many parameters in your model that it can fit anything
+    - Machine learning: Having way more parameters than samples => overfitting
+- What are your scientific aesthetics?
+    - Not using buzzwords
+    - Looking for clear effects, rather than uncertain correlations
+    - Not just being in it for the money
+    - Being really well-informed on the topic you're studying
+    - Doing high quality work--thinking of and accounting for details
+    - Prevention rather than treatment
+    - How do you set out to find something without being able to know what you'll find?
+        - "the cloud", and points A, B, and C--how do you set yourself up so you can find C and don't get too distracted by the idea of B?
+        - Do you know what you're looking for? Just "a good science story", or are there things out there that we know exist but still need looking for?
+        - How do you not just fall into a place where you have to make a story out of something even if there's nothing there?
+
+
+- Papers
+    - AMR
+        - Zagajewski, A., Turner, P., Feehily, C. et al. Deep learning and single-cell phenotyping for rapid antimicrobial susceptibility detection in Escherichia coli. Commun Biol 6, 1164 (2023). https://doi.org/10.1038/s42003-023-05524-4
+        - Pandi, A., Adam, D., Zare, A. et al. Cell-free biosynthesis combined with deep learning accelerates de novo-development of antimicrobial peptides. Nat Commun 14, 7197 (2023). https://doi.org/10.1038/s41467-023-42434-9
+    - Microbes
+        - Zimmerman, S., Tierney, B. T., Patel, C. J., & Kostic, A. D. (2023). Quantifying Shared and Unique Gene Content across 17 Microbial Ecosystems. mSystems, 8(2), e0011823. https://doi.org/10.1128/msystems.00118-23
+
+- Thoughts from readings
+    - "Why is the tree green?" Taking something we take for granted, and thinking of why it doesn't have to be that way, and figuring out why those didn't happen
+    - Why are things the way they are?
+    - Cycle of observation, hypothesis, data, hypothesis, data. Need some framework to start in, and then look for unexplained things
+
+- Quotes from readings
+
+    - How much of what I've done before is the same idea of GWAS? "Let's measure all of it and look for correlations." They're rarely strong, but that doesn't mean there's nothing there to see--it just means your tool can't reveal it.
+        - Y&L specifically emphasize correlations and the generation of various statistical patterns as a way to make hypothesis-free discoveries in data. Correlations are one form of “net” for looking at data. But correlations are ubiquitous and their strength tells us little [10]. One needs a hypothesis to arbitrate between which correlation might be worth investigating and which not. The genome-wide associational studies have pointed this out. With the exception of the usual outliers (rare genetic diseases), the association levels are relatively small. More data may offer more stable statistical estimates, but it will not achieve the identification of causality required for a physiological explanation. On the contrary, the extremely low association data can be hiding substantial causality or perhaps more complex or interconnected, omnigenic factors are at play in the genome [11]. A causal hypothesis, tested rigorously with quantitative modeling, can reveal the potential pathways for understanding genetic variation, epigenetic factors, and disease or traits [12].
+
+https://connects.catalyst.harvard.edu/Profiles/search/default.aspx?searchtype=people&searchfor=microbiome&exactphrase=&perpage=100&offset=0&page=1&totalpages=12&searchrequest=&sortby=&sortdirection=desc&showcolumns=2
+
+Chris Sanders
+- Instead of "I want to study biological networks", it's more accurate to say "I want to use networks to model what happens inside of cells"
+- When you say you want to understand something, figure out exactly what you mean by "understand".
+    - There's the moment of seeing something that clicks with your mental model, "aha!"
+    - Or you see something that doesn't fit your mental model, so your mental model changes
+    - Are you changing your mental model or other people's?
+    - How is a change in your mental model going to affect the real world? Or will it not?
+        - How will you communicate it to others?
+- Protein interactions in developmental biology?
+    - People look a lot at transcription factors
+    - What is often neglected are changing chromatin structure and histone modification throughout development
+    - People have used crosslinking to study the structure of DNA inside the nucleus, but we don't know how much that changes
+- The real key to cancer: address the causes
+    - Identify people who are at high risk, and develop drugs to help prevent cancer occurring in the first place
+        - But this is hard, and pharmaceutical industry hasn't been interested
+        - It's not impossible but it's a challenge
+    - Also the key to good response is finding it early
+
+- The balance is also finding questions that you have the tools and technology to answer
+    - E.g. dev bio has lots of interesting and complicated networks to investigate, but it doesn't need to be just endless hammering with the same tools of single gene knockouts
+    - I think I want to be using the tools though rather than making new ones
