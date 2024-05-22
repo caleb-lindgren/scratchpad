@@ -6,9 +6,9 @@ import scipy.stats
 rng = np.random.default_rng()
 
 def sample_exp(r):
-    return np.inf if r == 0 else rng.exponential(scale=1 / r)
+    return np.where(r == 0, np.inf, rng.exponential(scale=1 / r))
 
-def simulate(rate_eqs, deltas, N0, t_stop=100):
+def simulate(rate_eqs, deltas, N0, watch, t_stop=1000):
 
     t = 0
     N = N0
@@ -33,7 +33,10 @@ def simulate(rate_eqs, deltas, N0, t_stop=100):
         t += times[win_idx]
         N += deltas[win_idx]
 
-    res = pd.DataFrame({"t": ts, "x": xs})
+        if win_idx in watch:
+            print(f"N: {N}, t: {t}, idx: {win_idx}")
+
+    res = pd.DataFrame({"t": ts, "N": Ns})
 
     return res
 
@@ -41,7 +44,7 @@ def plot_over_time(dist):
 
     chart = alt.Chart(dist).mark_line().encode(
         x="t",
-        y="x",
+        y="N",
     ).properties(
         height=200,
         width=400,
@@ -85,8 +88,8 @@ if __name__ == "__main__":
     def make_terms():
         r = 0.0162
         d = 0.9259
-        ud = 10e-9
-        ui = 10e-8
+        ud = 10e-7
+        ui = 10e-4
 
         terms = {
             lambda N: N * r:       1,
@@ -97,8 +100,11 @@ if __name__ == "__main__":
 
         return terms
 
+    terms = make_terms()
+
     plot_over_time(simulate(
-        rate_eqs=terms.keys(),
-        deltas=terms.values(),
+        rate_eqs=list(terms.keys()),
+        deltas=list(terms.values()),
         N0=150,
+        watch=[2, 3]
     )).save("out.html")
