@@ -8,12 +8,12 @@ rng = np.random.default_rng()
 def sample_exp(r):
     return np.inf if r == 0 else rng.exponential(scale=1 / r)
 
-def simulate(rprod, rdeg, x0=0, t_stop=100):
+def simulate(rate_eqs, deltas, N0, t_stop=100):
 
     t = 0
-    x = x0
+    N = N0
     ts = []
-    xs = []
+    Ns = []
 
     while True:
 
@@ -21,38 +21,21 @@ def simulate(rprod, rdeg, x0=0, t_stop=100):
             break
 
         ts.append(t)
-        xs.append(x)
+        Ns.append(N)
 
-        rprod_x = rprod(x)
-        rdeg_x = rdeg(x)
+        rates = []
+        for rate_eq in rate_eqs:
+            rates.append(rate_eq(N))
 
-        t_prod = sample_exp(rprod_x)
-        t_deg = sample_exp(rdeg_x)
-
-        if t_prod < t_deg:
-            t += t_prod
-            x += 1
-        else:
-            t += t_deg
-            x -= 1
+        rates = np.array(rates)
+        times = sample_exp(rates)
+        win_idx = np.argmin(times)
+        t += times[win_idx]
+        N += deltas[win_idx]
 
     res = pd.DataFrame({"t": ts, "x": xs})
 
     return res
-
-def make_rates_simple_constitutive(A, gamma):
-    rates = {
-        "rprod": lambda x: A,
-        "rdeg": lambda x: gamma * x,
-    }
-    return rates
-
-def make_rates_neg_autoregulation(B, K, gamma):
-    rates = {
-        "rprod": lambda x: B * K / (K + x),
-        "rdeg": lambda x: gamma * x,
-    }
-    return rates
 
 def plot_over_time(dist):
 
@@ -99,24 +82,23 @@ def plot_steady_state_dist(rprod, rdeg, x0=0, t_stop=100, nperms=1000):
 
 if __name__ == "__main__":
 
-    terms = {
-        
-    }
+    def make_terms():
+        r = 0.0162
+        d = 0.9259
+        ud = 10e-9
+        ui = 10e-8
 
-    plot_over_time(
-        rates=terms.keys(),
+        terms = {
+            lambda N: N * r:       1,
+            lambda N: N * r * d:  -1,
+            lambda N: N * r * ud: -1,
+            lambda N: ui:         -1,
+        }
+
+        return terms
+
+    plot_over_time(simulate(
+        rate_eqs=terms.keys(),
         deltas=terms.values(),
-    )
-
-#    rates_A10 = make_rates_simple_constitutive(A=10, gamma=1)
-#    rates_A100 = make_rates_simple_constitutive(A=100, gamma=1)
-#
-#    plot_over_time(simulate(rprod=rates_A10["rprod"], rdeg=rates_A10["rdeg"])).save("1d2iA10.html")
-#    plot_over_time(simulate(rprod=rates_A100["rprod"], rdeg=rates_A100["rdeg"])).save("1d2Ai100.html")
-#
-#    plot_steady_state_dist(rprod=rates_A10["rprod"], rdeg=rates_A10["rdeg"]).save("1d2iiA10.html")
-#    plot_steady_state_dist(rprod=rates_A100["rprod"], rdeg=rates_A100["rdeg"]).save("1d2Aii100.html")
-#
-#    rates_B = make_rates_neg_autoregulation(B=200, K=100, gamma=1)
-#    plot_over_time(simulate(rprod=rates_B["rprod"], rdeg=rates_B["rdeg"])).save("1d3extra.html")
-#    plot_steady_state_dist(rprod=rates_B["rprod"], rdeg=rates_B["rdeg"]).save("1d3.html")
+        N0=150,
+    )).save("out.html")
