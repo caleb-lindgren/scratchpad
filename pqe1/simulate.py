@@ -86,16 +86,17 @@ def plot_steady_state_dist(rprod, rdeg, x0=0, t_stop=100, nperms=1000):
 if __name__ == "__main__":
 
     def make_terms():
-        r = 0.0162
+        #r = 0.0162
+        r = 0.002
         d = 0.9259
-        ud = 10e-7
-        ui = 10e-4
+        ud = 10e-4
+        ui = 10e-6
 
         terms = {
             lambda N: N * r:       1,
             lambda N: N * r * d:  -1,
             lambda N: N * r * ud: -1,
-            lambda N: ui:         -1,
+            lambda N: N * ui:     -1,
         }
 
         return terms
