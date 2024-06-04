@@ -2,18 +2,21 @@ import altair as alt
 import pandas as pd
 import numpy as np
 import scipy.stats
+import sys
 
-rng = np.random.default_rng()
+permi = sys.argv[1]
+rng = np.random.default_rng(permi)
 
 def sample_exp(r):
     return np.where(r == 0, np.inf, rng.exponential(scale=1 / r))
 
-def simulate(rate_eqs, deltas, N0, watch, t_stop=1000):
+def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=1000):
 
     t = 0
     N = N0
     ts = []
     Ns = []
+    winner = None
 
     while True:
 
@@ -34,11 +37,12 @@ def simulate(rate_eqs, deltas, N0, watch, t_stop=1000):
         N += deltas[win_idx]
 
         if win_idx in watch:
-            print(f"N: {N}, t: {t}, idx: {win_idx}")
+            winner = winners[watch.index(win_idx)]
+            break
 
     res = pd.DataFrame({"t": ts, "N": Ns})
 
-    return res
+    return res, winner
 
 def plot_over_time(dist):
 
@@ -52,45 +56,13 @@ def plot_over_time(dist):
 
     return chart
 
-def plot_steady_state_dist(rprod, rdeg, x0=0, t_stop=100, nperms=1000):
-
-    ends = []
-    for i in range(nperms):
-        dist = simulate(
-            rprod=rprod,
-            rdeg=rdeg,
-            x0=x0,
-            t_stop=t_stop,
-        )
-
-        ends.append(dist.x.iloc[-1])
-        del dist
-
-    df = pd.DataFrame({"x": ends})
-    mean = np.mean(ends)
-    std = np.std(ends)
-
-    print(f"mean: {mean}")
-    print(f"var: {std ** 2}")
-
-    chart = alt.Chart(df).mark_bar().encode(
-        x=alt.X(
-            "x",
-            bin=alt.Bin(step=3 * std // 10),
-        ),
-        y="count()",
-    )
-
-    return chart
-
 if __name__ == "__main__":
 
-    def make_terms():
-        #r = 0.0162
-        r = 0.002
-        d = 0.9259
-        ud = 10e-4
-        ui = 10e-6
+    us = pd.read_csv("us.tsv", sep="\t")
+    ud = us.loc[permi, "ud"]
+    ui = us.loc[permi, "ui"]
+
+    def make_terms(r, d, ud, ui):
 
         terms = {
             lambda N: N * r:       1,
@@ -101,11 +73,24 @@ if __name__ == "__main__":
 
         return terms
 
-    terms = make_terms()
+    terms = make_terms(
+        r=0.0162,
+        d=0.9259,
+        ud=ud,
+        ui=ui,
+    )
 
-    plot_over_time(simulate(
-        rate_eqs=list(terms.keys()),
-        deltas=list(terms.values()),
-        N0=150,
-        watch=[2, 3]
-    )).save("out.html")
+    ks = []
+    Nfs = []
+    tfs = []
+    for k in range(0, 10000):`
+
+        dist, winner = simulate(
+            rate_eqs=list(terms.keys()),
+            deltas=list(terms.values()),
+            N0=150,
+            watch=[2, 3],
+            winners=["d", "i"],
+        )
+
+        plot_over_time(dist).save(f"{permi}_{k}.html")
