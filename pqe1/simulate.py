@@ -73,7 +73,7 @@ us = np.logspace(
 combus = np.dstack(np.meshgrid(us, us)).reshape(-1, 2)
 combus = pd.DataFrame(combus, columns=["ud", "ui"])
 
-i_u = i_perm // 1000
+i_u = i_perm // 100
 ud = combus.loc[i_u, "ud"]
 ui = combus.loc[i_u, "ui"]
 
