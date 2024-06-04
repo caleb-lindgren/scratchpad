@@ -25,7 +25,7 @@ def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
             break
 
         with open(dist_filename, "w") as dist_handle:
-            dist_handle.write("\t".join([t, N]))
+            dist_handle.write("\t".join([str(t), str(N)]))
 
         if winner != "":
             break
@@ -81,6 +81,7 @@ terms = make_terms(
 )
 
 t, N, winner = simulate(
+    i_perm=i_perm,
     rate_eqs=list(terms.keys()),
     deltas=list(terms.values()),
     N0=150,

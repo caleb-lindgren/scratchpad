@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #SBATCH -c 1
-#SBATCH -t 0-00:30
+#SBATCH -t 0-01:00
 #SBATCH -p short
 #SBATCH --mem=8G
 #SBATCH -o log/slurm_%j_%a.out 
