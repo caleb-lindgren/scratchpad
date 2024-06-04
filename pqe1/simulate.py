@@ -13,7 +13,7 @@ def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
 
     dist_filename = f"dists/{i_perm}.tsv"
     with open(dist_filename, "w") as dist_handle:
-        dist_handle.write("\t".join(["t", "N"]))
+        dist_handle.write("\t".join(["t", "N"]) + "\n")
 
     t = 0
     N = N0
@@ -24,12 +24,9 @@ def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
 
     while True:
 
-        if t >= t_stop:
-            break
+        ostr += "\t".join([str(t), str(N)]) + "\n"
 
-        ostr += "\n" + "\t".join([str(t), str(N)])
-
-        if i % 100 == 0:
+        if i % 1000000 == 0:
             with open(dist_filename, "a") as dist_handle:
                 dist_handle.write(ostr)
             ostr = ""
@@ -44,6 +41,10 @@ def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
         rates = np.array(rates)
         times = sample_exp(rates)
         win_idx = np.argmin(times)
+
+        if t + times[win_idx] >= t_stop:
+            break
+
         t += times[win_idx]
         N += deltas[win_idx]
 
@@ -89,7 +90,7 @@ def make_terms(r, d, ud, ui):
 
 terms = make_terms(
     r=0.0162,
-    d=0.9259,
+    d=0.97,
     ud=ud,
     ui=ui,
 )
@@ -109,7 +110,7 @@ with open(f"out/{i_perm}.out", "w") as handle:
         str(i_perm),
         str(ud),
         str(ui),
-        t,
-        N,
+        str(t),
+        str(N),
         winner,
-    ]))
+    ]) + "\n")
