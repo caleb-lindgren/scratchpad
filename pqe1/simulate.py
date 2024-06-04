@@ -40,21 +40,19 @@ def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=10000):
             winner = winners[watch.index(win_idx)]
             break
 
+
+with open(f"out/{i_perm}.out", "w") as handle:
+    handle.write("\t".join([
+        str(i_perm),
+        str(ud),
+        str(ui),
+        winner,
+        str(dist['t'].iloc[-1]),
+        str(dist['N'].iloc[-1]),
+    ]))
     res = pd.DataFrame({"t": ts, "N": Ns})
 
     return res, winner
-
-def plot_over_time(dist):
-
-    chart = alt.Chart(dist).mark_line().encode(
-        x="t",
-        y="N",
-    ).properties(
-        height=200,
-        width=400,
-    )
-
-    return chart
 
 umin_exp = -10
 umax_exp = -1
@@ -91,22 +89,10 @@ terms = make_terms(
     ui=ui,
 )
 
-dist, winner = simulate(
+simulate(
     rate_eqs=list(terms.keys()),
     deltas=list(terms.values()),
     N0=150,
     watch=[2, 3],
     winners=["d", "i"],
 )
-
-with open(f"out/{i_perm}.out", "w") as handle:
-    handle.write("\t".join([
-        str(i_perm),
-        str(ud),
-        str(ui),
-        winner,
-        str(dist['t'].iloc[-1]),
-        str(dist['N'].iloc[-1]),
-    ]))
-
-plot_over_time(dist).save(f"charts/{i_perm}.html")
