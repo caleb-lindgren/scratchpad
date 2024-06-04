@@ -1,4 +1,3 @@
-import altair as alt
 import pandas as pd
 import numpy as np
 import scipy.stats
@@ -10,12 +9,14 @@ rng = np.random.default_rng(i_perm)
 def sample_exp(r):
     return np.where(r == 0, np.inf, rng.exponential(scale=1 / r))
 
-def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=10000):
+def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
+
+    dist_filename = f"dists/{i_perm}.tsv"
+    with open(dist_filename, "w") as dist_handle:
+        dist_handle.write("\t".join(["t", "N"]))
 
     t = 0
     N = N0
-    ts = []
-    Ns = []
     winner = ""
 
     while True:
@@ -23,8 +24,11 @@ def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=10000):
         if t >= t_stop:
             break
 
-        ts.append(t)
-        Ns.append(N)
+        with open(dist_filename, "w") as dist_handle:
+            dist_handle.write("\t".join([t, N]))
+
+        if winner != "":
+            break
 
         rates = []
         for rate_eq in rate_eqs:
@@ -38,21 +42,8 @@ def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=10000):
 
         if win_idx in watch:
             winner = winners[watch.index(win_idx)]
-            break
 
-
-with open(f"out/{i_perm}.out", "w") as handle:
-    handle.write("\t".join([
-        str(i_perm),
-        str(ud),
-        str(ui),
-        winner,
-        str(dist['t'].iloc[-1]),
-        str(dist['N'].iloc[-1]),
-    ]))
-    res = pd.DataFrame({"t": ts, "N": Ns})
-
-    return res, winner
+    return t, N, winner
 
 umin_exp = -10
 umax_exp = -1
@@ -89,10 +80,21 @@ terms = make_terms(
     ui=ui,
 )
 
-simulate(
+t, N, winner = simulate(
     rate_eqs=list(terms.keys()),
     deltas=list(terms.values()),
     N0=150,
     watch=[2, 3],
     winners=["d", "i"],
 )
+
+
+with open(f"out/{i_perm}.out", "w") as handle:
+    handle.write("\t".join([
+        str(i_perm),
+        str(ud),
+        str(ui),
+        t,
+        N,
+        winner,
+    ]))
