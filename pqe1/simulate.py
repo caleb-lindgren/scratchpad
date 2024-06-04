@@ -4,19 +4,19 @@ import numpy as np
 import scipy.stats
 import sys
 
-permi = sys.argv[1]
-rng = np.random.default_rng(permi)
+i_perm = int(sys.argv[1])
+rng = np.random.default_rng(i_perm)
 
 def sample_exp(r):
     return np.where(r == 0, np.inf, rng.exponential(scale=1 / r))
 
-def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=1000):
+def simulate(rate_eqs, deltas, N0, watch, winners, t_stop=10000):
 
     t = 0
     N = N0
     ts = []
     Ns = []
-    winner = None
+    winner = ""
 
     while True:
 
@@ -56,41 +56,57 @@ def plot_over_time(dist):
 
     return chart
 
-if __name__ == "__main__":
+umin_exp = -10
+umax_exp = -1
 
-    us = pd.read_csv("us.tsv", sep="\t")
-    ud = us.loc[permi, "ud"]
-    ui = us.loc[permi, "ui"]
+us = np.logspace(
+    umin_exp,
+    umax_exp,
+    num=2 * (abs(umin_exp - umax_exp) + 1) - 1,
+    base=10,
+)
 
-    def make_terms(r, d, ud, ui):
+combus = np.dstack(np.meshgrid(us, us)).reshape(-1, 2)
+combus = pd.DataFrame(combus, columns=["ud", "ui"])
 
-        terms = {
-            lambda N: N * r:       1,
-            lambda N: N * r * d:  -1,
-            lambda N: N * r * ud: -1,
-            lambda N: N * ui:     -1,
-        }
+i_u = i_perm // 1000
+ud = combus.loc[i_u, "ud"]
+ui = combus.loc[i_u, "ui"]
 
-        return terms
+def make_terms(r, d, ud, ui):
 
-    terms = make_terms(
-        r=0.0162,
-        d=0.9259,
-        ud=ud,
-        ui=ui,
-    )
+    terms = {
+        lambda N: N * r:       1,
+        lambda N: N * r * d:  -1,
+        lambda N: N * r * ud: -1,
+        lambda N: N * ui:     -1,
+    }
 
-    ks = []
-    Nfs = []
-    tfs = []
-    for k in range(0, 10000):`
+    return terms
 
-        dist, winner = simulate(
-            rate_eqs=list(terms.keys()),
-            deltas=list(terms.values()),
-            N0=150,
-            watch=[2, 3],
-            winners=["d", "i"],
-        )
+terms = make_terms(
+    r=0.0162,
+    d=0.9259,
+    ud=ud,
+    ui=ui,
+)
 
-        plot_over_time(dist).save(f"{permi}_{k}.html")
+dist, winner = simulate(
+    rate_eqs=list(terms.keys()),
+    deltas=list(terms.values()),
+    N0=150,
+    watch=[2, 3],
+    winners=["d", "i"],
+)
+
+with open(f"out/{i_perm}.out", "w") as handle:
+    handle.write("\t".join([
+        str(i_perm),
+        str(ud),
+        str(ui),
+        winner,
+        str(dist['t'].iloc[-1]),
+        str(dist['N'].iloc[-1]),
+    ]))
+
+plot_over_time(dist).save(f"charts/{i_perm}.html")
