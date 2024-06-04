@@ -8,5 +8,4 @@
 #SBATCH -e log/slurm_%j_%a.err 
 #SBATCH --array=0-9999
 
-python simulate.py $SLURM_ARRAY_TASK_ID
-#python simulate.py $((SLURM_ARRAY_TASK_ID + 10000))
+python simulate.py $((SLURM_ARRAY_TASK_ID + 220000))
