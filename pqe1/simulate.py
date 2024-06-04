@@ -19,13 +19,20 @@ def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
     N = N0
     winner = ""
 
+    i = 0
+    ostr = ""
+
     while True:
 
         if t >= t_stop:
             break
 
-        with open(dist_filename, "w") as dist_handle:
-            dist_handle.write("\t".join([str(t), str(N)]))
+        ostr += "\n" + "\t".join([str(t), str(N)])
+
+        if i % 100 == 0:
+            with open(dist_filename, "a") as dist_handle:
+                dist_handle.write(ostr)
+            ostr = ""
 
         if winner != "":
             break
@@ -42,6 +49,13 @@ def simulate(i_perm, rate_eqs, deltas, N0, watch, winners, t_stop=10000):
 
         if win_idx in watch:
             winner = winners[watch.index(win_idx)]
+
+        i += 1
+
+
+    if ostr != "":
+        with open(dist_filename, "a") as dist_handle:
+            dist_handle.write(ostr)
 
     return t, N, winner
 
