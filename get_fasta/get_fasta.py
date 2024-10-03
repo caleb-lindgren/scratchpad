@@ -99,6 +99,10 @@ prots = (
 		# so when there's an entry where the existence score is null, we'll assign it a rank of 6 (existing scores are
 		# 1 to 5)
 		existence_rank=pl.col("header").str.extract(r"\ PE=(\d) ").fill_null("6"),
+
+		# We're going to assign a column of random numbers, but always with the same seed, for consistent tie-breaking
+		# when we sort
+		tie_breaker=pl.int_range(pl.len()).sample(pl.len(), with_replacement=False, shuffle=True, seed=0),
 	)
 
 	# Sorting
@@ -107,9 +111,10 @@ prots = (
 	# Within that: Higher existence rank before lower existence rank
 	# Within that: Non-isoforms before isoforms
 	# Within that: Longer before shorter
+	# Within that: Order by random rank column always generated with same seed, for consistent tie-breaking
 	.sort(
-		"file_order", "database", "existence_rank", "isoform_order", "seq_len",
-		descending=[False, False, False, False, True]
+		"file_order", "database", "existence_rank", "isoform_order", "seq_len", "tie_breaker",
+		descending=[False, False, False, False, True, False]
 	)
 
 	# Select just the columns we need for saving, now that we've sorted everything
