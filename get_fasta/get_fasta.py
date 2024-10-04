@@ -7,6 +7,11 @@ import sys
 
 """
 python get_fasta.py PROTEOME_ID SPECIES_TAXON_ID
+
+Some common examples:
+python get_fasta.py UP000005640 9606 & # Human
+python get_fasta.py UP000000589 10090 & # Mouse (Mus musculus)
+python get_fasta.py UP000002494 10116 & # Rat (Rattus norvegicus)
 """
 
 # Functions for reading and writing FASTA to and from Polars dataframes
@@ -74,7 +79,8 @@ canonical_url = f"https://ftp.uniprot.org/pub/databases/uniprot/current_release/
 
 # This URL provides the small number of reviewed proteins for the species that are not included in the reference
 # proteome. For example, for humans this is mostly immunoglobulin proteins and that kind of thing.
-additional_url = f"https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=fasta&includeIsoform=true&query=%28%28organism_id%3A{species_id}%29+AND+%28reviewed%3Atrue%29+NOT+%28proteome%3A{proteome_id}%29%29"
+# Also limit these sequences to >10 aa in length
+additional_url = f"https://rest.uniprot.org/uniprotkb/stream?compressed=true&format=fasta&includeIsoform=true&query=%28%28organism_id%3A{species_id}%29+AND+%28reviewed%3Atrue%29+NOT+%28proteome%3A{proteome_id}%29+AND+%28length%3A%5B11+TO+*%5D%29%29"
 
 # This URL provides isoforms for the proteins in the reference proteome, as well as additional unreviewed proteins from
 # TrEMBL.
