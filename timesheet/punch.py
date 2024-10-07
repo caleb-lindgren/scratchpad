@@ -116,6 +116,8 @@ class Timesheet:
         net = self._get_weeks_table().sum()
         print(f"Total: {self._fmt_timedelta(net)}")
 
+        mean = self._get_weeks_table().iloc[:-1].mean()
+        print(f"Mean: {self._fmt_timedelta(mean)}")
 
 if len(sys.argv) < 3:
     raise ValueError("Insufficient number of arguments passed. Please specify 'in', 'out', 'check', or 'summarize' and a path to a timesheet tsv file.")
