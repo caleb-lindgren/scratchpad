@@ -22,14 +22,14 @@ class Timesheet:
 			elif resp == "n":
 				sys.exit()
 
-	def _get_weeks_table(self):
+	def _get_time_deltas(self, prefix):
 
-		ins, outs = self._get_ins_outs()
+		ins, outs = self._get_ins_outs(prefix)
 
 		# If we're currently clocked in, summarize time worked until now
-		if self._timesheet.iloc[-1, 0] == "in":
+		if self._timesheet.iloc[-1, 0] == f"{prefix}in":
 			outs = pd.concat([outs, pd.DataFrame({
-				"io": ["out"],
+				"io": [f"{prefix}out"],
 				"time": [pd.Timestamp.now()],
 			})], ignore_index=True)
 
@@ -40,17 +40,40 @@ class Timesheet:
 		outs.index = ins["time"]
 		outs.index.name = "punch"
 
+		# Get deltas
+		deltas = (outs["time"] - ins["time"]).reset_index()
+
+		return deltas
+
+	def _group_time_deltas(self, deltas):
+
 		# Sum by week
-		net = (outs["time"] - ins["time"]).\
-		reset_index().\
+		net = deltas.\
 		groupby([pd.Grouper(key="punch", freq="W-FRI")])["time"].\
 		sum()
 
 		return net
 
-	def _summarize_weeks(self):
+	def _get_weeks_table(self, prefix):
 
-		net = self._get_weeks_table().\
+		deltas = self._get_time_deltas(prefix)
+		net = self._group_time_deltas(deltas)
+
+		return net
+
+	def _get_combined_weeks_table(self):
+
+		deltas = self._get_time_deltas(prefix="")
+		vdeltas = self._get_time_deltas(prefix="v")
+
+		comb = pd.concat([deltas, vdeltas], ignore_index=True)
+		net = self._group_time_deltas(comb)
+
+		return net
+
+	def _summarize_weeks(self, prefix):
+
+		net = self._get_weeks_table(prefix).\
 		apply(self._fmt_timedelta)
 
 		# Offset week
@@ -65,21 +88,21 @@ class Timesheet:
 		sec = int(total_secs % 3600 % 60)
 		return f"{'-' if tdelta.total_seconds() < 0 else ''}{hrs:02d}:{min:02d}:{sec:02d}"
 
-	def _get_ins_outs(self):
+	def _get_ins_outs(self, prefix):
 
 		self._timesheet = self.\
 		_timesheet.\
 		sort_values(by="time").\
 		reset_index(drop=True)
 
-		ins = self._timesheet[self._timesheet["io"] == "in"]
-		outs = self._timesheet[self._timesheet["io"] == "out"]
+		ins = self._timesheet[self._timesheet["io"] == f"{prefix}in"]
+		outs = self._timesheet[self._timesheet["io"] == f"{prefix}out"]
 
 		return ins, outs
 
-	def _check_matches(self):
+	def _check_matches(self, prefix):
 
-		ins, outs = self._get_ins_outs()
+		ins, outs = self._get_ins_outs(prefix)
 
 		if (ins.index % 2 != 0).any() or (outs.index % 2 == 0).any():
 			raise ValueError(f"Punch mismatch:\n{self._timesheet.tail()}")
@@ -99,36 +122,48 @@ class Timesheet:
 			raise ValueError(f"Invalid punch. Creates duplicate row.")
 
 		self._timesheet = tmp.sort_values(by="time").reset_index(drop=True)
-		self._check_matches()
+		self._check_matches("")
+		self._check_matches("v")
 		self.check_current()
 		self._save()
 
 	def check_current(self):
-		print(self._summarize_weeks().iloc[-1])
+		print(self._summarize_weeks("").iloc[-1])
 
 	def summarize_all(self):
-		weeks = self._summarize_weeks()
+		weeks = self._summarize_weeks("")
 		weeks.index.name = None
 		print(weeks, end="\r")
 		print(" " * 30)
 
-		weeks_table = self._get_weeks_table()
+		#print("Vacation:")
+		#vweeks = self._summarize_weeks("v")
+		#vweeks.index.name = None
+		#print(vweeks, end="\r")
+		#print(" " * 30)
+
+		weeks_table = self._get_weeks_table("")
+		vweeks_table = self._get_weeks_table("v")
+		comb_table = self._get_combined_weeks_table()
 
 		net = weeks_table.sum()
 		print(f"Total: {self._fmt_timedelta(net)}")
 
-		mean = weeks_table.iloc[:-1].mean()
-		print(f"Mean: {self._fmt_timedelta(mean)}")
+		vnet = vweeks_table.sum()
+		print(f"Vacation total: {self._fmt_timedelta(vnet)}")
 
-		diff = weeks_table.iloc[:-1].sum() - (pd.Timedelta("40 hours") * (weeks_table.shape[0] - 1))
-		print(f"Total lack or excess: {self._fmt_timedelta(diff)}")
+		mean = comb_table.iloc[:-1].mean()
+		print(f"Weekly mean: {self._fmt_timedelta(mean)}")
+
+		diff = comb_table.iloc[:-1].sum() - (pd.Timedelta("40 hours") * (comb_table.shape[0] - 1))
+		print(f"Total lack/excess: {self._fmt_timedelta(diff)}")
 
 if len(sys.argv) < 3:
-	raise ValueError("Insufficient number of arguments passed. Please specify 'in', 'out', 'check', or 'summarize' and a path to a timesheet tsv file.")
+	raise ValueError("Insufficient number of arguments passed. Please specify 'in', 'out', 'vin', 'vout', 'check', or 'summarize' and a path to a timesheet tsv file.")
 
 if len(sys.argv) in (3, 5, 8):
 
-	if sys.argv[1] in ("in", "out", "check", "summarize"):
+	if sys.argv[1] in ("in", "out", "vin", "vout", "check", "summarize"):
 
 		ts = Timesheet(sys.argv[2])
 
@@ -151,6 +186,6 @@ if len(sys.argv) in (3, 5, 8):
 			time = pd.Timestamp(*punch_time_list)
 			ts.punch(io=sys.argv[1], time=time)
 	else:
-		raise ValueError(f"Invalid punch type. You passed '{sys.argv[1]}'. Please pass 'in', 'out', 'check', or 'summarize'.")
+		raise ValueError(f"Invalid punch type. You passed '{sys.argv[1]}'. Please pass 'in', 'out', 'vin', 'vout', 'check', or 'summarize'.")
 else:
-	raise ValueError(f"Wrong number of arguments. You passed {len(sys.argv) - 1} arguments. Pass either two ('in', 'out', 'check', or 'summarize' and a path to a timesheet tsv file) or six ('in' or 'out', a path to a timesheet tsv file, and year, month, day, 24 hour, minute).")
+	raise ValueError(f"Wrong number of arguments. You passed {len(sys.argv) - 1} arguments. Pass either two ('in', 'out', 'vin', 'vout', 'check', or 'summarize' and a path to a timesheet tsv file) or six ('in' or 'out', a path to a timesheet tsv file, and year, month, day, 24 hour, minute).")
