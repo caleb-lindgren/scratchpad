@@ -52,6 +52,8 @@ class Timesheet:
 		groupby([pd.Grouper(key="punch", freq="W-FRI")])["time"].\
 		sum()
 
+		net = net[net != pd.Timedelta(0)]
+
 		return net
 
 	def _get_weeks_table(self, prefix):
