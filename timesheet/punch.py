@@ -132,17 +132,18 @@ class Timesheet:
 	def check_current(self):
 		print(self._summarize_weeks("").iloc[-1])
 
-	def summarize_all(self):
+	def summarize_all(self, vacation):
 		weeks = self._summarize_weeks("")
 		weeks.index.name = None
 		print(weeks, end="\r")
 		print(" " * 30)
 
-		#print("Vacation:")
-		#vweeks = self._summarize_weeks("v")
-		#vweeks.index.name = None
-		#print(vweeks, end="\r")
-		#print(" " * 30)
+		if vacation:
+			print("Vacation:")
+			vweeks = self._summarize_weeks("v")
+			vweeks.index.name = None
+			print(vweeks, end="\r")
+			print(" " * 30)
 
 		weeks_table = self._get_weeks_table("")
 		vweeks_table = self._get_weeks_table("v")
@@ -165,7 +166,7 @@ if len(sys.argv) < 3:
 
 if len(sys.argv) in (3, 5, 8):
 
-	if sys.argv[1] in ("in", "out", "vin", "vout", "check", "summarize"):
+	if sys.argv[1] in ("in", "out", "vin", "vout", "check", "summarize", "vsummarize"):
 
 		ts = Timesheet(sys.argv[2])
 
@@ -176,7 +177,11 @@ if len(sys.argv) in (3, 5, 8):
 		elif sys.argv[1] == "summarize":
 			if len(sys.argv) > 3:
 				print("Note: Ignoring extra args after 'summarize'")
-			ts.summarize_all()
+			ts.summarize_all(vacation=False)
+		elif sys.argv[1] == "vsummarize":
+			if len(sys.argv) > 3:
+				print("Note: Ignoring extra args after 'summarize'")
+			ts.summarize_all(vacation=True)
 		elif len(sys.argv) == 3:
 			ts.punch(io=sys.argv[1])
 		elif len(sys.argv) == 5:
